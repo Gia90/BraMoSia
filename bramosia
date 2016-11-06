@@ -1,0 +1,118 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+#	Detect as much info as possible about the brand and model of the target AP device (for default passwords identification or possible known model specific vulnerabilities)
+#	The more arguments the user specifies, the more method it will try to obtain info, and, so, more info it will be able to extract.
+#		args: Mac-Address (OUI lookup), IP if the device is reachable (upnp, snmp, other?), bssid (beacon, probe requests)
+
+from optparse import OptionParser
+from optparse import OptionGroup
+
+from bramomac import BraMoMac
+from bramoip import BraMoUpnp
+from bramoip import BraMoSnmp
+
+
+def __err(msg):
+	print "[ERROR]", msg
+def __err_hint(msg, opt=None):
+	print "[?]\t\t" + msg + ( "" if not opt else " ("+str(opt)+")" )
+
+print "          ---===  || BraMoSia ||  ===---              "
+print "Brand Model Automatic Identification Script by Gia90\n"
+
+usage = "usage: %prog [options]"
+parser = OptionParser(usage=usage)
+
+# Required options
+req_group = OptionGroup(parser, "Required Target Options", "You must specify at least one of this options to identify the target.")
+req_group.add_option( "-M", "--mac", dest="macaddr", help="MAC address of the device.", metavar="MACADDR" )
+req_group.add_option( "-A", "--address", dest="ipaddr", help="IP address of the device.", metavar="IPADDRESS" )
+req_group.add_option( "-B", "--bssid", dest="bssid", help="BSSID of the wireless device.", metavar="BSSID" )
+
+parser.add_option_group(req_group)
+
+# MAC options
+mac_group = OptionGroup(parser, "MAC Address Options", "MAC specific options.")
+#mac_group.add_option( "--ouisrc", dest="ouisrc", choices=["0","1","2"], default="0", help="Which OUI db to use [internal, local oui, custom] (Default: 0)", metavar="[0,1,2]" )
+mac_group.add_option( "--ouidb", dest="ouidb", help="Filepath to the IEEE formatted oui.txt (Default: "+BraMoMac._ouidb+")", metavar="/path/to/oui.txt" )
+
+parser.add_option_group(mac_group)
+
+
+# IP options
+ip_group = OptionGroup(parser, "IP Address Options", "IP Address specific options.")
+ip_group.add_option( "--upnp-port", dest="upnp_port", type="int", help="UPnP service custom port (Default: "+str(BraMoUpnp._port)+")", metavar="PORT" )
+ip_group.add_option( "--upnp-st", dest="upnp_st", help="UPnP Search Target string (Default: "+BraMoUpnp._st+")", metavar="SEARCHTARGET" )
+ip_group.add_option( "--snmp-port", dest="snmp_port", help="SNMP service custom port (Default: "+str(BraMoSnmp._port)+")", metavar="PORT" )
+ip_group.add_option( "--snmp-community", dest="snmp_community", help="SNMP Community string to use (Default: "+BraMoSnmp._community+")", metavar="COMMUNITY" )
+parser.add_option_group(ip_group)
+
+
+# BSSID options
+bssid_group = OptionGroup(parser, "BSSID Options", "BSSID specific options.")
+
+parser.add_option_group(bssid_group)
+
+(opts, args) = parser.parse_args()
+
+
+if None == opts.macaddr == opts.ipaddr == opts.bssid :
+	parser.print_help()
+else:
+	if opts.macaddr:
+		print "MAC Address info:"
+		try:
+			info_from_mac = BraMoMac(opts.ouidb)
+			for vendor in info_from_mac.get_vendor(opts.macaddr):
+				print "\t"+vendor
+		except Exception as e:
+			__err( "\t"+str(e) )
+		print
+	if opts.ipaddr:
+		print "UPnP info:"
+		try:
+			for dev in BraMoUpnp(opts.ipaddr, opts.upnp_port, opts.upnp_st).get_details():
+				for key,val in dev.iteritems():
+					print "\t%-20s %s" % (key, val)
+				print
+		except Exception as e:
+			__err( "\t"+str(e) )
+			__err_hint("Is UPnP service active on the target?");
+			if opts.upnp_port: __err_hint("Is the specified port correct?", opts.upnp_port)
+			if opts.upnp_st: __err_hint("Is the specified search target correct?", opts.upnp_st)
+			print
+		print "SNMP info:"
+		try:
+			for key,val in BraMoSnmp(opts.ipaddr, opts.snmp_port, opts.snmp_community).get_details().iteritems():
+				print "\t"+key+": "+val
+			print
+		except Exception as e:
+			__err( "\t"+str(e) )
+			if opts.snmp_port: __err_hint("Is the specified port correct?", opts.snmp_port)
+			if opts.snmp_community: __err_hint("Is the specified community string correct?", opts.snmp_community)
+			print
+	if opts.bssid:
+		print "BSSID info:"
+		print "\t[TO BE IMPLEMENTED]"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
