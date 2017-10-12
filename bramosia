@@ -34,7 +34,8 @@ parser.add_option_group(req_group)
 # MAC options
 mac_group = OptionGroup(parser, "MAC Address Options", "MAC specific options.")
 #mac_group.add_option( "--ouisrc", dest="ouisrc", choices=["0","1","2"], default="0", help="Which OUI db to use [internal, local oui, custom] (Default: 0)", metavar="[0,1,2]" )
-mac_group.add_option( "--ouidb", dest="ouidb", help="Filepath to the IEEE formatted oui.txt (Default: "+BraMoMac._ouidb+")", metavar="/path/to/oui.txt" )
+mac_group.add_option( "--ouidb", dest="ouidb", help="Filepath to the IEEE \"oui.txt\". You can download it from http://standards-oui.ieee.org/oui.txt (Default: "+BraMoMac._local_ouidb+")", metavar="/path/to/oui.txt" )
+mac_group.add_option( "--online", dest="online", help="Use the online IEEE \"oui.txt\" (Default: "+str(BraMoMac._online)+")", action="store_true" )
 
 parser.add_option_group(mac_group)
 
@@ -62,9 +63,9 @@ else:
 	if opts.macaddr:
 		print "MAC Address info:"
 		try:
-			info_from_mac = BraMoMac(opts.ouidb)
+			info_from_mac = BraMoMac(opts.ouidb, opts.online)
 			for vendor in info_from_mac.get_vendor(opts.macaddr):
-				print "\t"+vendor
+				print "\t"+opts.macaddr+"\t"+vendor
 		except Exception as e:
 			__err( "\t"+str(e) )
 		print
@@ -94,25 +95,3 @@ else:
 	if opts.bssid:
 		print "BSSID info:"
 		print "\t[TO BE IMPLEMENTED]"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
