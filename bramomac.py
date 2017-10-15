@@ -2,6 +2,7 @@ import requests
 
 # Download oui.txt from: http://standards-oui.ieee.org/oui.txt
 # or run "update-oui" in Kali Linux
+
 # Brand, Model and other info from MAC address
 class BraMoMac:
 	_local_ouidb = "/var/lib/ieee-data/oui.txt"
