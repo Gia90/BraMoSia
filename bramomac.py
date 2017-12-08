@@ -33,8 +33,7 @@ class BraMoMac:
 				raise Exception( "Cannot open \""+self._local_ouidb+"\". Is it correct?" )
 		return ouidb_content
 
-	def get_vendor(self, macaddr):
-		oui = self.__extract_oui(macaddr)
+	def __extract_vendors(self, oui):
 		vendors = []
 		ouidb = self.__open_ouidb()
 		for row in ouidb:
@@ -42,9 +41,13 @@ class BraMoMac:
 				vendor = row.strip()
 			elif( "vendor" in locals() ):
 				if row.strip():
-						vendor += row.strip() + " "
+					vendor += row.strip() + " "
 				else:
 					vendor = vendor.split("\t\t", 1)[1].strip().replace("\r\n\t\t\t\t", " ")
 					vendors.append(vendor);
 					del vendor
 		return vendors
+
+	def get_vendors(self, macaddr):
+		oui = self.__extract_oui(macaddr)
+                return self.__extract_vendors(oui)
