@@ -63,11 +63,15 @@ else:
 	if opts.macaddr:
 		print "MAC Address info:"
 		try:
-			info_from_mac = BraMoMac(opts.ouidb, opts.online)
-			for vendor in info_from_mac.get_vendor(opts.macaddr):
-				print "\t"+opts.macaddr+"\t"+vendor
-		except Exception as e:
-			__err( "\t"+str(e) )
+                    info_from_mac = BraMoMac(opts.ouidb, opts.online)
+                    vendors = info_from_mac.get_vendors(opts.macaddr)
+                    if(vendors):
+                        for vendor in info_from_mac.get_vendors(opts.macaddr):
+                            print "\t"+opts.macaddr+"\t"+vendor
+                    else:
+                        print "\t"+opts.macaddr+"\tNo results"
+                except Exception as e:
+                    __err( "\t"+str(e) )
 		print
 	if opts.ipaddr:
 		print "UPnP info:"

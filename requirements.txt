@@ -4,3 +4,4 @@ pycrypto==2.6.1
 pysmi==0.0.7
 pysnmp==4.3.2
 requests==2.18.4
+scapy==2.3.3

@@ -145,10 +145,10 @@ class BraMoWi:
 
 	def get_details(self):
 		if(not self._stealth):
-			print("Send probe request here!")
-			bssid_filter = lambda p: ( p.haslayer(Dot11ProbeResp) and p[Dot11].addr3 == self._bssid.lower() )
-
-		bssid_filter = lambda p: ( p.haslayer(Dot11Beacon) and p[Dot11].addr3 == self._bssid.lower() )
+		    print("Send probe request here!")
+		    bssid_filter = lambda p: ( p.haslayer(Dot11ProbeResp) and p[Dot11].addr3 == self._bssid.lower() )
+                else:
+		    bssid_filter = lambda p: ( p.haslayer(Dot11Beacon) and p[Dot11].addr3 == self._bssid.lower() )
 
 		# Start the sniffer
 		sniff(iface= self._iface, prn=self._p_handler, lfilter=bssid_filter, stop_filter=bssid_filter, timeout=self._timeout)
